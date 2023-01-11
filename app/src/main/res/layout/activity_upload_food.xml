@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".UploadFoodActivity">
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="20dp"
+        app:cardElevation="20dp"
+        app:cardCornerRadius="30dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/blue_button"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+
+            <ImageView
+                android:id="@+id/uploadImage"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/pancakes"
+                android:contentDescription="@string/uploadImg" />
+
+            <EditText
+                android:id="@+id/uploadIngredient"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/blue_button"
+                android:gravity="start|center_vertical"
+                android:hint="@string/ingredient_name"
+                android:padding="20dp"
+                android:textColor="@color/main1"
+                android:textColorHint="@color/main2"
+                android:autofillHints="Ingredient name" />
+
+
+            <EditText
+                android:id="@+id/uploadAmount"
+                android:layout_width="100dp"
+                android:layout_height="60dp"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/blue_button"
+                android:gravity="start|center_vertical"
+                android:hint="@string/quantity"
+                android:padding="20dp"
+                android:textColor="@color/main1"
+                android:textColorHint="@color/main2"
+                android:textSize="16sp"
+                android:inputType="number"/>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/uploadCarbs"
+                    android:layout_width="90dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/blue_button"
+                    android:gravity="center"
+                    android:hint="@string/carbs"
+                    android:inputType="numberDecimal"
+                    android:padding="20dp"
+                    android:paddingHorizontal="20dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/main1"
+                    android:textColorHint="@color/main2"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <EditText
+                    android:id="@+id/uploadProtein"
+                    android:layout_width="90dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="30dp"
+                    android:layout_marginEnd="10dp"
+                    android:background="@drawable/blue_button"
+                    android:gravity="center"
+                    android:hint="@string/protein"
+                    android:inputType="numberDecimal"
+                    android:padding="20dp"
+                    android:textAlignment="center"
+                    android:textColor="@color/main1"
+                    android:textColorHint="@color/main2"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="10dp"/>
+
+                <EditText
+                    android:id="@+id/uploadFat"
+                    android:layout_width="90dp"
+                    android:layout_height="60dp"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/blue_button"
+                    android:hint="@string/fat"
+                    android:inputType="numberDecimal"
+                    android:padding="20dp"
+                    android:textColor="@color/main1"
+                    android:textColorHint="@color/main2"
+                    android:layout_marginEnd="10dp"
+                    android:textAlignment="center"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="10dp"/>
+            </LinearLayout>
+
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/submitIngredientBTN"
+                android:textSize="18sp"
+                android:text="@string/save"
+                android:layout_marginTop="20dp"
+                app:cornerRadius="20dp" />
+
+
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+
+
+
+
+</ScrollView>

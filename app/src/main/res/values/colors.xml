@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    // My colors - Brand colors
+
+
+   // Gradiant from main1 to main2.
+    <color name="main1">#92A3FD</color>
+    <color name="main2">#9DCEFF</color>
+
+    // Gradiant from Secondary1 to Secondary2.
+    <color name="secondary1">#C58BF2</color>
+    <color name="secondary2">#EEA4CE</color>
+
+    // Black color
+    <color name="brandBlack">#1D1617</color>
+
+    // Gray Colors
+    <color name="gray1">#7B6F72</color>
+    <color name="gray2">#ADA4A5</color>
+    <color name="gray3">#DDDADA</color>
+
+
+</resources>
