@@ -6,6 +6,7 @@
     import android.os.Bundle
     import android.text.Editable
     import android.text.TextWatcher
+    import android.util.Log
     import android.widget.AdapterView
     import android.widget.ArrayAdapter
     import android.widget.AutoCompleteTextView
@@ -23,10 +24,10 @@
 
 
         /**
-         * Updates the recyclerview with the ingredients selected from the database
-         * Then makes a new list for the user, so he has his unique list in the database that used as a shopping list
-         * When an item is removed from the shopping list it is added to the food stock of the user
-         * The food-stock(Ingredients) is then compared to the the recipes from the database, and the user gets recipes based on the food-stock(Ingredients)
+         *
+         * Firebase as a backend, and makes use of the FirebaseAuth and FirebaseDatabase classes to handle user authentication and data storage. The app is using the activity's lifecycle methods, onPause and onResume, to save and retrieve a list of ingredients that is unique to the currently signed-in user. The onPause method saves the ingredients list to a node in the Firebase database named after the user's unique ID, and the onResume method retrieves the ingredients list from the same node and updates the RecyclerView's adapter with the retrieved ingredients.
+         * It contains a RecyclerView and autocompleteTextView to search and add ingredients and user can see the ingredients list and use it as shopping list.
+         * TODO: The food-stock(Ingredients) is then compared to the the recipes from the database, and the user gets recipes based on the food-stock(Ingredients)
          */
 
         // Declaring an instance of FirebaseAuth
@@ -47,7 +48,7 @@
         // List to hold ingredients later
         private val ingredients = arrayOf("Ingredient 1", "Ingredient 2", "Ingredient 3")
 
-        val ingredientsAdapter = IngredientsAdapter(ingredientsList)
+        var ingredientsAdapter = IngredientsAdapter(ingredientsList)
 
         override fun onPause() {
             super.onPause()
@@ -63,6 +64,14 @@
             // Save the ingredients list to a node named after the user's unique ID
             val database = FirebaseDatabase.getInstance().reference
             database.child("ingredients_list").child(userId).setValue(ingredientsList)
+
+            if (ingredientsList.isNotEmpty()) {
+                Log.d("IngredientsList", ingredientsList.toString())
+                // Save the ingredients list to a node named after the user's unique ID
+                val database = FirebaseDatabase.getInstance().reference
+                database.child("ingredients_list").child(userId).setValue(ingredientsList)
+            }
+
         }
 
         override fun onResume() {
@@ -72,7 +81,8 @@
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "default_value"
             // Retrieve the ingredients list from a node named after the user's unique ID
             val database = FirebaseDatabase.getInstance().reference
-            val ingredientsListRef = database.child("ingredients_list").child(userId)
+            var ingredientsListRef = database.child("ingredients_list").child(userId)
+            Log.d("MainActivity", "Retrieved ingredients list with size: ${ingredientsList.size}")
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     ingredientsList.clear()
@@ -80,6 +90,8 @@
                         val ingredient = ingredientSnapshot.getValue(DataClassIngredient::class.java)
                         if (ingredient != null) {
                             ingredientsList.add(ingredient)
+                            Log.d("IngredientsList", ingredientsList.toString())
+
                         }
                     }
 
@@ -87,10 +99,25 @@
                     val recyclerView = findViewById<RecyclerView>(R.id.ingredients_recyclerview)
                     recyclerView.adapter = ingredientsAdapter
                     recyclerView.layoutManager = GridLayoutManager(this@MainActivity, 3)
+                    Log.d("IngredientsList", ingredientsList.toString())
+
+                    if (ingredientsList.isNotEmpty()) {
+                        Log.d("IngredientsList", ingredientsList.toString())
+                        // Save the ingredients list to a node named after the user's unique ID
+                        val database = FirebaseDatabase.getInstance().reference
+                        database.child("ingredients_list").child(userId).setValue(ingredientsList)
+                    }
+
                 }
                 override fun onCancelled(databaseError: DatabaseError) {}
             }
             ingredientsListRef.addValueEventListener(valueEventListener)
+            if (ingredientsList.isNotEmpty()) {
+                Log.d("IngredientsList", ingredientsList.toString())
+                // Save the ingredients list to a node named after the user's unique ID
+                val database = FirebaseDatabase.getInstance().reference
+                database.child("ingredients_list").child(userId).setValue(ingredientsList)
+            }
         }
 
 
@@ -126,10 +153,10 @@
                 startActivity(intent)
             }
 
+            val updatedIngredients = mutableListOf<String>()
 
-
-            // Setting up autocomplete adapter and attach it to the AutoCompleteTextView
-            val autocompleteAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, ingredients)
+            // Setting up autocomplete adapter and attaching it to the AutoCompleteTextView
+            val autocompleteAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, updatedIngredients)
             val ingredientAutocomplete = findViewById<AutoCompleteTextView>(R.id.ingredient_autocomplete)
             ingredientAutocomplete.setAdapter(autocompleteAdapter)
 
@@ -148,40 +175,30 @@
             val recyclerView = findViewById<RecyclerView>(R.id.ingredients_recyclerview)
 
 
-            // Set up item click listener for the AutoCompleteTextView to add selected ingredient to the ingredients list and update the RecyclerView
+            // Setting up item click listener for the AutoCompleteTextView to add selected ingredient to the ingredients list and update the RecyclerView
             ingredientAutocomplete.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
                 val selectedIngredient = autocompleteAdapter.getItem(position) as String
                 ingredientAutocomplete.setText("")
-                if (updatedIngredients.contains(selectedIngredient)) {
-                    val query = FirebaseDatabase.getInstance().reference.child("Ingredients")
-                        .orderByChild("ingredientName")
-                        .equalTo(selectedIngredient)
-                    // Query the Firebase database for the selected ingredient and add it to the ingredients list
-                    query.addListenerForSingleValueEvent(object : ValueEventListener {
-                        @SuppressLint("NotifyDataSetChanged")
-                        override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            val ingredientsAdapter = ingredientsAdapter.notifyDataSetChanged()
-                            for (ingredientSnapshot in dataSnapshot.children) {
-                                val ingredient = ingredientSnapshot.getValue(DataClassIngredient::class.java)
-                                // Update the list of ingredients with the selected ingredient
-                                if (ingredient != null) {
-                                    ingredientsList.add(ingredient)
-                                    ingredientsAdapter.notifyDataSetChanged()
-                                }
+                val query = FirebaseDatabase.getInstance().reference.child("Ingredients")
+                    .orderByChild("ingredientName")
+                    .equalTo(selectedIngredient)
+                // Query the Firebase database for the selected ingredient and add it to the ingredients list
+                query.addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        for (ingredientSnapshot in dataSnapshot.children) {
+                            val ingredient = ingredientSnapshot.getValue(DataClassIngredient::class.java)
+                            Log.d("ingredient", ingredient.toString())
+                            // Update the list of ingredients with the selected ingredient
+                            if (ingredient != null) {
+                                ingredientsList.add(ingredient)
                             }
                         }
-                        override fun onCancelled(databaseError: DatabaseError) {}
-                    })
-                } else {
-                    // If the selected item does not exist in the updatedIngredients list, add the search string to the list
-                    val searchString = ingredientAutocomplete.text.toString()
-                    if (!searchString.isEmpty()) {
-                        ingredientsList.add(DataClassIngredient(ingredientName = searchString))
                         ingredientsAdapter.notifyDataSetChanged()
                     }
-                }
-
+                    override fun onCancelled(databaseError: DatabaseError) {}
+                })
             }
+
 
 
 
@@ -190,7 +207,7 @@
 
             // Set up RecyclerView for displaying selected ingredients
             val gridLayoutManager = GridLayoutManager(this, 3)
-            val ingredientsAdapter = IngredientsAdapter(ingredientsList)
+            ingredientsAdapter.notifyDataSetChanged()
             recyclerView.adapter = ingredientsAdapter
             recyclerView.layoutManager = gridLayoutManager
 
