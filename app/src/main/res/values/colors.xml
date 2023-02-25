@@ -8,8 +8,9 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
-    // My colors - Brand colors
 
+    // My colors - Brand colors
+    <color name="backgroundGray">#F7F7FA</color>
 
    // Gradiant from main1 to main2.
     <color name="main1">#92A3FD</color>

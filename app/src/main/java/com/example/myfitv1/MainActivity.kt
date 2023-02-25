@@ -1,6 +1,6 @@
     package com.example.myfitv1
 
-    import android.annotation.SuppressLint
+
     import android.content.Intent
     import androidx.appcompat.app.AppCompatActivity
     import android.os.Bundle
@@ -36,6 +36,9 @@
         // Declaring a Button to sign out the user
         private lateinit var signOutBtn: Button
 
+        // Declaring a Button to take user to workout page
+        private lateinit var goToWorkout: Button
+
         // List to store selected ingredients
         private var ingredientsList = mutableListOf<DataClassIngredient>()
 
@@ -45,8 +48,7 @@
         // Utility object to query ingredients from Firebase database
        private val firebaseUtility = FirebaseUtility()
 
-        // List to hold ingredients later
-        private val ingredients = arrayOf("Ingredient 1", "Ingredient 2", "Ingredient 3")
+
 
         var ingredientsAdapter = IngredientsAdapter(ingredientsList)
 
@@ -56,21 +58,12 @@
             // Get the current user's unique ID
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "default_value"
 
-            if (userId != null) {
-                // Use userId here
-            } else {
-                // currentUser is null, do something else
-            }
+
             // Save the ingredients list to a node named after the user's unique ID
             val database = FirebaseDatabase.getInstance().reference
             database.child("ingredients_list").child(userId).setValue(ingredientsList)
 
-            if (ingredientsList.isNotEmpty()) {
-                Log.d("IngredientsList", ingredientsList.toString())
-                // Save the ingredients list to a node named after the user's unique ID
-                val database = FirebaseDatabase.getInstance().reference
-                database.child("ingredients_list").child(userId).setValue(ingredientsList)
-            }
+
 
         }
 
@@ -81,7 +74,7 @@
             val userId = FirebaseAuth.getInstance().currentUser?.uid ?: "default_value"
             // Retrieve the ingredients list from a node named after the user's unique ID
             val database = FirebaseDatabase.getInstance().reference
-            var ingredientsListRef = database.child("ingredients_list").child(userId)
+            val ingredientsListRef = database.child("ingredients_list").child(userId)
             Log.d("MainActivity", "Retrieved ingredients list with size: ${ingredientsList.size}")
             val valueEventListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -104,8 +97,8 @@
                     if (ingredientsList.isNotEmpty()) {
                         Log.d("IngredientsList", ingredientsList.toString())
                         // Save the ingredients list to a node named after the user's unique ID
-                        val database = FirebaseDatabase.getInstance().reference
-                        database.child("ingredients_list").child(userId).setValue(ingredientsList)
+                        val databaseI = FirebaseDatabase.getInstance().reference
+                        databaseI.child("ingredients_list").child(userId).setValue(ingredientsList)
                     }
 
                 }
@@ -115,8 +108,8 @@
             if (ingredientsList.isNotEmpty()) {
                 Log.d("IngredientsList", ingredientsList.toString())
                 // Save the ingredients list to a node named after the user's unique ID
-                val database = FirebaseDatabase.getInstance().reference
-                database.child("ingredients_list").child(userId).setValue(ingredientsList)
+                val databaseI = FirebaseDatabase.getInstance().reference
+                databaseI.child("ingredients_list").child(userId).setValue(ingredientsList)
             }
         }
 
@@ -130,8 +123,17 @@
             binding = ActivityMainBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
+            // Getting a reference to the sign out button
+            goToWorkout = findViewById(R.id.goToWorkout)
 
 
+            goToWorkout.setOnClickListener {
+
+                // Go to the Workout screen
+                val intent = Intent(this, WorkoutMain::class.java)
+                startActivity(intent)
+                finish()
+            }
 
             // Getting a reference to the sign out button
             signOutBtn = findViewById(R.id.signOutBtn)
@@ -162,6 +164,8 @@
 
 
 
+
+
             // Setting up text change listener for the AutoCompleteTextView to query the Firebase database for matching ingredients
             ingredientAutocomplete.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(s: Editable?) {}
@@ -177,7 +181,7 @@
 
             // Setting up item click listener for the AutoCompleteTextView to add selected ingredient to the ingredients list and update the RecyclerView
             ingredientAutocomplete.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
-                val selectedIngredient = autocompleteAdapter.getItem(position) as String
+                val selectedIngredient = autocompleteAdapter.getItem(position)
                 ingredientAutocomplete.setText("")
                 val query = FirebaseDatabase.getInstance().reference.child("Ingredients")
                     .orderByChild("ingredientName")
@@ -185,19 +189,41 @@
                 // Query the Firebase database for the selected ingredient and add it to the ingredients list
                 query.addListenerForSingleValueEvent(object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
-                        for (ingredientSnapshot in dataSnapshot.children) {
-                            val ingredient = ingredientSnapshot.getValue(DataClassIngredient::class.java)
-                            Log.d("ingredient", ingredient.toString())
-                            // Update the list of ingredients with the selected ingredient
-                            if (ingredient != null) {
-                                ingredientsList.add(ingredient)
+                        if (!dataSnapshot.exists()) {
+                            // If the ingredient is not found in the database, create a new ingredient object
+                            val newIngredient = DataClassIngredient(ingredientName = selectedIngredient)
+                            ingredientsList.add(newIngredient)
+                            ingredientsAdapter.notifyDataSetChanged()
+                            // Save the ingredient to the current user's unique ingredients list in the Firebase database
+                            val userId = FirebaseAuth.getInstance().currentUser?.uid
+                            if (userId != null) {
+                                val database = FirebaseDatabase.getInstance().reference
+                                newIngredient.ingredientName?.let {
+                                    database.child("ingredients_list").child(userId).child(it).setValue(newIngredient)
+                                }
                             }
+                        } else {
+                            for (ingredientSnapshot in dataSnapshot.children) {
+                                val ingredient = ingredientSnapshot.getValue(DataClassIngredient::class.java)
+                                Log.d("ingredient", ingredient.toString())
+                                // Update the list of ingredients with the selected ingredient
+                                if (ingredient != null) {
+                                    ingredientsList.add(ingredient)
+                                }
+                            }
+                            ingredientsAdapter.notifyDataSetChanged()
                         }
-                        ingredientsAdapter.notifyDataSetChanged()
                     }
-                    override fun onCancelled(databaseError: DatabaseError) {}
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                    }
                 })
             }
+
+
+
+
+
 
 
 
